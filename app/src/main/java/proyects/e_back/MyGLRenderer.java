@@ -12,6 +12,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MyGLRenderer";
 
+    private Circle mCircle;
+    private Line mLine;
+
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
@@ -24,7 +27,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 
         // Set the background frame color
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        mCircle = new Circle();
+        mLine = new Line();
 
     }
 
@@ -41,7 +47,20 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
+        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
 
+        // Combine the rotation matrix with the projection and camera view
+        // Note that the mMVPMatrix factor *must be first* in order
+        // for the matrix multiplication product to be correct.
+        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+
+        // Draw triangle
+        mCircle.draw(scratch);
+
+        Line vertLine = new Line();
+        vertLine.SetVerts((float) (0.5 * Math.cos((Math.PI/180) * (float)30 )), (float) (0.5 * Math.sin((Math.PI/180) * (float)30 )), 0f, 0f, 0f, 0f);
+        vertLine.SetColor(1.0f, .0f, 0f, 1.0f);
+        vertLine.draw(mMVPMatrix);
 
     }
 
